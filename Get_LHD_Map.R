@@ -3,6 +3,7 @@ library(sf)
 library(tidyverse)
 
 ### Download LHD map from Google
+### Updated now
 lhd.url <- paste0('https://www.google.com/maps/d/',
                   'kml?mid=1Dv1JRTGmzlm83tBv7tb8vQcOQXY&forcekml=1')
 
