@@ -14,7 +14,7 @@ Get_ABS_Geography <- function(ASGS, Year, state = 1){
   if(Year == 2011){
     where_query <- glue::glue("STATE_CODE='{state}'")
   } else {
-    where_query <- glue::glue("STATE_CODE_{Year}='{st}'")
+    where_query <- glue::glue("STATE_CODE_{Year}='{state}'")
   }
   
   url$query <- list(
