@@ -19,3 +19,6 @@ LHD.Map <- dplyr::bind_rows(
   sf::st_zm() %>% 
   ## Convert to the incoming coordinate reference system (GDA2020)
   sf::st_transform(7844)
+
+rm(lhd.url)
+rm(lhd.tf)

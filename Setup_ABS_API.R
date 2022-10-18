@@ -5,10 +5,7 @@ library(httr)
 library(rsdmx)
 library(jsonlite)
 
-url <- 'https://api.data.abs.gov.au'
-
 ### This may need to be added later
-apikey <- ''
 
 ### Get 2021 Assets
 res <- httr::GET(url = glue::glue("{url}/dataflow/ABS/?format=jsondata")) 
@@ -18,8 +15,13 @@ ABS.Contents <- fromJSON(rawToChar(res$content))
 Assets <- purrr::map_df(ABS.Contents$references,
                         ~data.frame(id = .$id, name = .$name)) 
 
+rm(ABS.Contents)
+rm(res)
+
 ####### Make a generic data dictionary function ########
-GetDataDict <- function(id){
+GetDataDict <- function(id, apikey = ''){
+  apikey <- ''
+  
   url <- 'https://api.data.abs.gov.au'
   
   rs <- rsdmx::readSDMX(
@@ -38,12 +40,8 @@ GetDataDict <- function(id){
 }
 
 
-# Assets %>% 
-#   dplyr::filter(grepl("C21.*SA2", id),
-#                 grepl("Time Series", name),)
-
-
-Get_ABS_Table <- function(table, args){
+Get_ABS_Table <- function(table, args, apikey = ''){
+  
   url <- 'https://api.data.abs.gov.au'
   
   args.vec <- paste(unlist(args), collapse = '.')
@@ -53,5 +51,7 @@ Get_ABS_Table <- function(table, args){
     add_headers('x-api-key' = apikey))
   readr::read_csv(file = rawToChar(res2$content))
 }
+
+
 
 
