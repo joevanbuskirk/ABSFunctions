@@ -8,6 +8,7 @@ library(jsonlite)
 ### This may need to be added later
 
 ### Get 2021 Assets
+url <- 'https://api.data.abs.gov.au'
 res <- httr::GET(url = glue::glue("{url}/dataflow/ABS/?format=jsondata")) 
 
 ABS.Contents <- fromJSON(rawToChar(res$content)) 
@@ -17,6 +18,7 @@ Assets <- purrr::map_df(ABS.Contents$references,
 
 rm(ABS.Contents)
 rm(res)
+rm(url)
 
 ####### Make a generic data dictionary function ########
 GetDataDict <- function(id, apikey = ''){
