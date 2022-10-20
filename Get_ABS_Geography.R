@@ -33,24 +33,4 @@ Get_ABS_Geography <- function(ASGS, Year, state = 1){
   
 }
 
-Int_with_SLHD <- function(ASGS, LHD = LHD.Map){
-  SLHD <- LHD.Map[LHD.Map$Name == 'Sydney', ]
-  SLHD <- sf::st_transform(SLHD, 3577)
-  ASGS <- sf::st_transform(ASGS, 3577)
-  
-  AreaVar <- names(ASGS)[grepl("Area.*sqkm", 
-                               names(ASGS), 
-                               ignore.case = TRUE)]
-  
-  ## For SA2s
-  SLHD.Intersection <- sf::st_intersection(ASGS, SLHD)
-  SLHD.Intersection$AreaSLHD <- as.numeric(sf::st_area(SLHD.Intersection))/1000^2
-  SLHD.Intersection <- SLHD.Intersection %>% 
-    dplyr::mutate(AreaInPct = AreaSLHD/get(AreaVar)) %>% 
-    dplyr::filter(AreaInPct > 0.5)
-  
-  return(SLHD.Intersection)
-}
-
-
 

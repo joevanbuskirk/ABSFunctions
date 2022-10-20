@@ -22,3 +22,49 @@ LHD.Map <- dplyr::bind_rows(
 
 rm(lhd.url)
 rm(lhd.tf)
+
+
+
+Int_with_SLHD <- function(ASGS, LHD = LHD.Map){
+  SLHD <- LHD.Map[LHD.Map$Name == 'Sydney', ]
+  SLHD <- sf::st_transform(SLHD, 3577)
+  ASGS <- sf::st_transform(ASGS, 3577)
+  
+  AreaVar <- names(ASGS)[grepl("Area.*sqkm", 
+                               names(ASGS), 
+                               ignore.case = TRUE)]
+  
+  ## For SA2s
+  SLHD.Intersection <- sf::st_intersection(ASGS, SLHD)
+  SLHD.Intersection$AreaSLHD <- as.numeric(sf::st_area(SLHD.Intersection))/1000^2
+  SLHD.Intersection <- SLHD.Intersection %>% 
+    dplyr::mutate(AreaInPct = AreaSLHD/get(AreaVar)) %>% 
+    dplyr::filter(AreaInPct > 0.5)
+  
+  return(SLHD.Intersection)
+}
+
+
+Int_with_LHD <- function(ASGS, LHD.Map = LHD.Map, LHD = 'All'){
+  if(LHD != 'All'){
+    LHD.Map <- LHD.Map[LHD.Map$Name == LHD, ]
+    }
+  
+  LHD.Map <- sf::st_transform(LHD.Map, 3577)
+  ASGS <- sf::st_transform(ASGS, 3577)
+  
+  AreaVar <- names(ASGS)[grepl("Area.*sqkm", 
+                               names(ASGS), 
+                               ignore.case = TRUE)]
+  
+  ## For SA2s
+  LHD.Intersection <- sf::st_intersection(ASGS, LHD.Map)
+  LHD.Intersection$AreaLHD <- as.numeric(sf::st_area(LHD.Intersection))/1000^2
+  LHD.Intersection <- LHD.Intersection %>% 
+    dplyr::mutate(AreaInPct = AreaSLHD/get(AreaVar)) %>% 
+    dplyr::filter(AreaInPct > 0.5)
+  
+  return(SLHD.Intersection)
+}
+
+
