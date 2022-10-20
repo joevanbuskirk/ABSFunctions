@@ -52,8 +52,6 @@ Int_with_SLHD <- function(ASGS, LHD = LHD.Map){
 
 
 Int_with_LHD <- function(ASGS, LHD = LHD.Map){
-  LHD <- LHD[grepl("Sydney|Nepean", LHD$Name), ]
-  
   LHD <- sf::st_transform(LHD, 3577)
   ASGS <- sf::st_transform(ASGS, 3577)
   ASGS <- sf::st_make_valid(ASGS)
