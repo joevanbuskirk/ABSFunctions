@@ -18,13 +18,14 @@ LHD.Map <- dplyr::bind_rows(
   ## Drop the Z dimension from the kml file - not needed and causes errors
   sf::st_zm() %>% 
   ## Convert to the incoming coordinate reference system (GDA2020)
-  sf::st_transform(7844)
+  sf::st_transform(3577)
 
 LHD.Map <- dplyr::bind_rows(
   LHD.Map[sf::st_is_valid(LHD.Map),],
-  LHD.Map[!sf::st_is_valid(LHD.Map),] %>% 
-    lwgeom::st_snap_to_grid(.10) %>% 
+  LHD.Map[!sf::st_is_valid(LHD.Map), ] %>% 
+    lwgeom::st_snap_to_grid(., .10) %>% 
     sf::st_make_valid())
+
 
 rm(lhd.url)
 rm(lhd.tf)
