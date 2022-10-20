@@ -20,6 +20,12 @@ LHD.Map <- dplyr::bind_rows(
   ## Convert to the incoming coordinate reference system (GDA2020)
   sf::st_transform(7844)
 
+LHD.Map <- dplyr::bind_rows(
+  LHD.Map[sf::st_is_valid(LHD.Map),],
+  LHD.Map[!sf::st_is_valid(LHD.Map),] %>% 
+    lwgeom::st_snap_to_grid(.10) %>% 
+    sf::st_make_valid())
+
 rm(lhd.url)
 rm(lhd.tf)
 
