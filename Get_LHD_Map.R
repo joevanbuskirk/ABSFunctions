@@ -31,9 +31,8 @@ rm(lhd.url)
 rm(lhd.tf)
 
 
-
 Int_with_SLHD <- function(ASGS, LHD = LHD.Map){
-  SLHD <- LHD.Map[LHD.Map$Name == 'Sydney', ]
+  SLHD <- LHD[LHD$Name == 'Sydney', ]
   SLHD <- sf::st_transform(SLHD, 3577)
   ASGS <- sf::st_transform(ASGS, 3577)
   

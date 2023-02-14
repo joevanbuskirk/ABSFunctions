@@ -9,18 +9,12 @@ GetFunctions <- function(which = 'all',
   }
   
   if(which == 'all'){
-    LHD_Map = TRUE
-    ABS_API = TRUE
-    ABS_Geog = TRUE
-    CatBins = TRUE
+    LHD_Map <- ABS_API <- ABS_Geog <- CatBins <- TRUE
   }
   
   if(LHD_Map){source('https://raw.githubusercontent.com/joevanbuskirk/ABSFunctions/main/Get_LHD_Map.R')}
-  
   if(ABS_API){source('https://raw.githubusercontent.com/joevanbuskirk/ABSFunctions/main/Setup_ABS_API.R')}
-  
   if(ABS_Geog){source('https://raw.githubusercontent.com/joevanbuskirk/ABSFunctions/main/Get_ABS_Geography.R')}
-  
   if(CatBins){source('https://raw.githubusercontent.com/joevanbuskirk/ABSFunctions/main/CatBins.R')}
 }
 
