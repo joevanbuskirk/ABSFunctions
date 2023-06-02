@@ -16,7 +16,12 @@ library(rvest)
 library(tidyverse)
 library(gridExtra)
 
-Get_SMH_Crossword <- function(date = Sys.Date()){
+Get_SMH_Crossword <- function(date = Sys.Date(), 
+                              type = 'cryptic'){
+  if(!type %in% c('quick', 'cryptic')){
+    return(print("Only 'quick' or 'cryptic' crosswords allowed"))
+  } 
+  
   ## Set dates and format them
   date <- as.Date(date)
   date_fmt <- format(date, '%Y-%m-%d')
@@ -24,7 +29,7 @@ Get_SMH_Crossword <- function(date = Sys.Date()){
   date_nice_fmt <- gsub(' 0(\\d)', ' \\1', date_nice_fmt)
   
   ## Read html
-  url <- glue::glue('https://www.smh.com.au/puzzles/crosswords/cryptic/{date_fmt}')
+  url <- glue::glue('https://www.smh.com.au/puzzles/crosswords/{type}/{date_fmt}')
   rvest_rd <- rvest::read_html(url)
   
   ## Get setter
@@ -32,7 +37,7 @@ Get_SMH_Crossword <- function(date = Sys.Date()){
     html_nodes('h2') %>% 
     html_text()
   
-  Setter <- Setter[grepl('Cryptic', Setter)]
+  Setter <- Setter[grepl(type, Setter, ignore.case = TRUE)]
   Setter <- gsub('.* by ', 'by ', Setter)
   
   ## Get clues
@@ -43,7 +48,7 @@ Get_SMH_Crossword <- function(date = Sys.Date()){
     html_text() %>% 
     gsub('^(\\d{1,2})', '\\1. ', .)
   
-  clues <- data.frame(clue = test) %>% 
+  clues <- data.frame(clue = clues) %>% 
     dplyr::mutate(Direction = ifelse(clue %in% c('Across', 'Down'),
                                      clue,
                                      NA_character_)) %>% 
@@ -120,5 +125,4 @@ Get_SMH_Crossword <- function(date = Sys.Date()){
                                                 c(1,1,1),
                                                 c(2,2,2)))
 }
-
 
