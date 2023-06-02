@@ -17,14 +17,17 @@ library(tidyverse)
 library(gridExtra)
 
 Get_SMH_Crossword <- function(date = Sys.Date()){
+  ## Set dates and format them
   date <- as.Date(date)
   date_fmt <- format(date, '%Y-%m-%d')
   date_nice_fmt <- format(date, '%A, %B %d, %Y')
   date_nice_fmt <- gsub(' 0(\\d)', ' \\1', date_nice_fmt)
-  url <- glue::glue('https://www.smh.com.au/puzzles/crosswords/cryptic/{date_fmt}')
   
+  ## Read html
+  url <- glue::glue('https://www.smh.com.au/puzzles/crosswords/cryptic/{date_fmt}')
   rvest_rd <- rvest::read_html(url)
   
+  ## Get setter
   Setter <- rvest_rd %>%
     html_nodes('h2') %>% 
     html_text()
@@ -32,35 +35,39 @@ Get_SMH_Crossword <- function(date = Sys.Date()){
   Setter <- Setter[grepl('Cryptic', Setter)]
   Setter <- gsub('.* by ', 'by ', Setter)
   
+  ## Get clues
   clues <- rvest_rd %>% 
     html_node(xpath = '//*[@id="crossword-clues"]') %>% 
     html_children() %>%
-    purrr::map(html_children) %>% 
-    setNames(c('Across', 'Down'))
+    html_children() %>%
+    html_text() %>% 
+    gsub('^(\\d{1,2})', '\\1. ', .)
   
-  clues <- clues %>% 
-    purrr::map(function(direct){
-      out <- purrr::map_chr(direct, 
-                            html_text)
-      out <- gsub('^(\\d{1,2})', '\\1. ', out)
-      out <- out[!grepl('^(Across|Down)$', out)]
-      return(out)
-    }) 
+  clues <- data.frame(clue = test) %>% 
+    dplyr::mutate(Direction = ifelse(clue %in% c('Across', 'Down'),
+                                     clue,
+                                     NA_character_)) %>% 
+    tidyr::fill(Direction, .direction = 'down') %>% 
+    dplyr::filter(!clue %in% c('Across', 'Down'))
+
+  len <- 65
+  
+  clue_df <- clues %>% 
+    dplyr::mutate(x = 1,
+                  clue = gsub(paste0("(.{", len, "}.*?) "), "\\1\n", clue)) %>% 
+    dplyr::mutate(lnes = stringr::str_count(clue, '\n')/1.8 + 1,
+                  lnes = ifelse(lnes == 0, 1, lnes)) %>% 
+    dplyr::group_by(Direction) %>% 
+    dplyr::mutate(clue = rev(clue),
+                  lnes = rev(lnes),
+                  y = cumsum(lnes),
+                  y = y - max(y)) %>% 
+    dplyr::ungroup()
   
   
-  lengths <- clues %>% 
-    purrr::map(function(direct){
-      purrr::map_dbl(
-        direct,
-        function(clue){
-          len <- gsub('.*\\((.*)\\)$', "\\1", clue)
-          len <- stringr::str_extract_all(len, pattern = '\\d')
-          len <- as.numeric(unlist(len))
-          sum(len)  
-        })
-    }
-    )
-  
+  ## Get grid layout
+  ## Note this actually gets the **answers** but that's cheating
+  ## So I've suppressed them
   tables <- rvest_rd %>% 
     html_table()
   
@@ -79,6 +86,8 @@ Get_SMH_Crossword <- function(date = Sys.Date()){
   d1$grid <- c(grid)
   d1$grid <- as.character(d1$grid)
   
+  
+  ## Plot the grid
   grid_plot <- ggplot(d1, 
                       aes(x = x, y = y, fill = grid, label = lab)) +
     geom_tile(colour = 'grey20') + 
@@ -92,26 +101,7 @@ Get_SMH_Crossword <- function(date = Sys.Date()){
     labs(title = date_nice_fmt,
          subtitle = Setter)
   
-  grid_plot
-  
-  len <- 65
-  
-  clue_df <- purrr::map_df(clues, 
-                           data.frame, 
-                           .id = 'Direction') %>% 
-    dplyr::rename(clue = 2) %>% 
-    dplyr::mutate(x = 1,
-                  clue = gsub(paste0("(.{", len, "}.*?) "), "\\1\n", clue)) %>% 
-    dplyr::mutate(lnes = stringr::str_count(clue, '\n')/1.8 + 1,
-                  lnes = ifelse(lnes == 0, 1, lnes)) %>% 
-    dplyr::group_by(Direction) %>% 
-    dplyr::mutate(clue = rev(clue),
-                  lnes = rev(lnes),
-                  y = cumsum(lnes),
-                  y = y - max(y)) %>% 
-    dplyr::ungroup()
-  
-  
+  ## Plot the clues (underneath)
   clue_grid <- ggplot(clue_df, aes(x = x, y = y, label = clue)) +
     geom_text(hjust = 0, 
               vjust = 1,
@@ -124,6 +114,7 @@ Get_SMH_Crossword <- function(date = Sys.Date()){
     theme(strip.text = element_text(face = 'bold', hjust = 0.05))
   
   
+  ## Tack them onto one another
   gridExtra::grid.arrange(grobs = list(grid_plot, clue_grid), 
                           layout_matrix = rbind(c(1,1,1),
                                                 c(1,1,1),
