@@ -126,3 +126,4 @@ Get_SMH_Crossword <- function(date = Sys.Date(),
                                                 c(2,2,2)))
 }
 
+Get_SMH_Crossword()
