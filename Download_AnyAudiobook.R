@@ -15,7 +15,9 @@
 if(!require(purrr)){install.packages('purrr')}
 if(!require(rvest)){install.packages('rvest')}
 
-Download_AnyAudiobook <- function(url, file_prefix, destfolder){
+Download_AnyAudiobook <- function(url, 
+                                  file_prefix = 'Audiobook', 
+                                  destfolder){
   if(!dir.exists(destfolder)){dir.create(destfolder)}
   
   url_read <- rvest::read_html(url)
