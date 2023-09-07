@@ -1,6 +1,6 @@
 #' Download AnyAudiobook
 #'
-#' Download any audiobook hosting on anyaudiobooks.com
+#' Download any audiobook hosted on anyaudiobooks.com
 #' 
 #' @param url Target URL of audiobook, on https://anyaudiobook.com
 #' @param file_prefix Prefix for downloaded files 
