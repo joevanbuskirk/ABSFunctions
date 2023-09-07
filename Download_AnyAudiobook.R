@@ -1,5 +1,19 @@
-library(rvest)
-library(xml2)
+#' Download AnyAudiobook
+#'
+#' Download any audiobook hosting on anyaudiobooks.com
+#' 
+#' @param url Target URL of audiobook, on https://anyaudiobook.com
+#' @param file_prefix Prefix for downloaded files 
+#' @param destfolder Destination folder for downloaded files
+#'
+#' @return Downloaded audiobook files in destination folder
+#' @export
+#'
+#' @examples
+
+
+if(!require(purrr)){install.packages('purrr')}
+if(!require(rvest)){install.packages('rvest')}
 
 Download_AnyAudiobook <- function(url, file_prefix, destfolder){
   if(!dir.exists(destfolder)){dir.create(destfolder)}
