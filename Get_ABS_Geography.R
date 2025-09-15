@@ -28,7 +28,8 @@ Get_ABS_Geography <- function(ASGS, Year, state = 1){
   
   out <- sf::st_read(httr::GET(request),
                      quiet = TRUE)
-  
+
+  if(nrow(out) == 2000)){warning('Max record count reached; output may not be complete')}
   return(out)
   
 }
