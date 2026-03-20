@@ -1,24 +1,37 @@
 ########### ABS Census API Setup ###########
 ########### Date: 19/09/2022 ###############
+pkgs <- c('tidyverse', 'httr', 'rsdmx', 'jsonlite', 'xml2')
+pkgs_chk <- sapply(pkgs, require, 
+                   character.only = TRUE,
+                   quietly = TRUE)
+if(any(!pkgs_chk)){
+  lapply(names(pkgs_chk)[!pkgs_chk], install.packages)
+}
+
 library(tidyverse)
 library(httr)
 library(rsdmx)
 library(jsonlite)
+library(xml2)
 
 ### This may need to be added later
-
 ### Get 2021 Assets
-url <- 'https://api.data.abs.gov.au'
-res <- httr::GET(url = glue::glue("{url}/dataflow/ABS/?format=jsondata")) 
+GetAssets <- function(){
+  url <- 'https://api.data.abs.gov.au'
+  
+  Assets <<- xml2::read_xml(sprintf('%s/dataflow/ABS', url)) %>% 
+    xml2::xml_child(2) %>%
+    xml2::xml_child() %>% 
+    xml2::as_list() %>% 
+    purrr::map(function(df){
+      if(length(df) == 4){
+        data.frame(ID = attr(df$Structure$Ref, 'id'),
+                   Name = df$Name[[1]])
+      }
+    }) %>% 
+    purrr::list_rbind()
+}
 
-ABS.Contents <- fromJSON(rawToChar(res$content)) 
-
-Assets <- purrr::map_df(ABS.Contents$references,
-                        ~data.frame(id = .$id, name = .$name)) 
-
-rm(ABS.Contents)
-rm(res)
-rm(url)
 
 ####### Make a generic data dictionary function ########
 GetDataDict <- function(id, apikey = ''){
