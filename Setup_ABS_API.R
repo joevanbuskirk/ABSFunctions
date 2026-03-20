@@ -64,7 +64,7 @@ Get_ABS_Table <- function(table, args, apikey = ''){
   res2 <- httr::GET(
     url = glue::glue("{url}/data/{table}/{args.vec}?format=csv"), 
     add_headers('x-api-key' = apikey))
-  readr::read_csv(file = rawToChar(res2$content), 
+  readr::read_csv(file = I(rawToChar(res2$content)), 
                   show_col_types = FALSE)
 }
 
