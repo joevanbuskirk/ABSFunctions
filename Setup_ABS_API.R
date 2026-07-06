@@ -17,9 +17,9 @@ library(xml2)
 ### This may need to be added later
 ### Get 2021 Assets
 GetAssets <- function(){
-  url <- 'https://api.data.abs.gov.au'
+  url <- 'https://data.api.abs.gov.au'
   
-  Assets <<- xml2::read_xml(sprintf('%s/dataflow/ABS', url)) %>% 
+  Assets <<- xml2::read_xml(sprintf('%s/rest/dataflow/ABS', url)) %>% 
     xml2::xml_child(2) %>%
     xml2::xml_child() %>% 
     xml2::as_list() %>% 
@@ -37,10 +37,10 @@ GetAssets <- function(){
 GetDataDict <- function(id, apikey = ''){
   apikey <- ''
   
-  url <- 'https://api.data.abs.gov.au'
+  url <- 'https://data.api.abs.gov.au'
   
   rs <- rsdmx::readSDMX(
-    glue::glue("{url}/datastructure/ABS/{id}?references=codelist"))
+    glue::glue("{url}/rest/datastructure/ABS/{id}?references=codelist"))
   
   ds <- rs@datastructures@datastructures[[1]]
   dims <- purrr::map_chr(ds@Components@Dimensions,
@@ -57,12 +57,12 @@ GetDataDict <- function(id, apikey = ''){
 
 Get_ABS_Table <- function(table, args, apikey = ''){
   
-  url <- 'https://api.data.abs.gov.au'
+  url <- 'https://data.api.abs.gov.au'
   
   args.vec <- paste(unlist(args), collapse = '.')
   
   res2 <- httr::GET(
-    url = glue::glue("{url}/data/{table}/{args.vec}?format=csv"), 
+    url = glue::glue("{url}/rest/data/{table}/{args.vec}?format=csv"), 
     add_headers('x-api-key' = apikey))
   readr::read_csv(file = I(rawToChar(res2$content)), 
                   show_col_types = FALSE)
